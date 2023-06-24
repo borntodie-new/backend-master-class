@@ -87,37 +87,53 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 			Amount:    arg.Amount,
 		})
 
-		// update account's balance
-		// get account information
-		fmt.Println(txName, "get account 2")
-		account1, err := store.GetAccountForUpdate(context.Background(), arg.FromAccountId)
-		if err != nil {
-			return err
-		}
-		// update account information
-		fmt.Println(txName, "update account 1")
-		result.FromAccount, err = store.UpdateAccount(context.Background(), UpdateAccountParams{
-			ID:      account1.ID,
-			Balance: account1.Balance - arg.Amount,
+		result.FromAccount, err = store.AddAccountBalance(ctx, AddAccountBalanceParams{
+			Amount: -arg.Amount,
+			ID:     arg.FromAccountId,
 		})
 		if err != nil {
 			return err
 		}
-		// get account information
-		fmt.Println(txName, "get account 2")
-		account2, err := store.GetAccountForUpdate(context.Background(), arg.ToAccountId)
-		if err != nil {
-			return err
-		}
-		// update account information
-		fmt.Println(txName, "update account 2")
-		result.ToAccount, err = store.UpdateAccount(context.Background(), UpdateAccountParams{
-			ID:      account2.ID,
-			Balance: account2.Balance + arg.Amount,
+
+		result.ToAccount, err = store.AddAccountBalance(ctx, AddAccountBalanceParams{
+			Amount: arg.Amount,
+			ID:     arg.ToAccountId,
 		})
 		if err != nil {
 			return err
 		}
+
+		//// update account's balance
+		//// get account information
+		//fmt.Println(txName, "get account 2")
+		//account1, err := store.GetAccountForUpdate(context.Background(), arg.FromAccountId)
+		//if err != nil {
+		//	return err
+		//}
+		//// update account information
+		//fmt.Println(txName, "update account 1")
+		//result.FromAccount, err = store.UpdateAccount(context.Background(), UpdateAccountParams{
+		//	ID:      account1.ID,
+		//	Balance: account1.Balance - arg.Amount,
+		//})
+		//if err != nil {
+		//	return err
+		//}
+		//// get account information
+		//fmt.Println(txName, "get account 2")
+		//account2, err := store.GetAccountForUpdate(context.Background(), arg.ToAccountId)
+		//if err != nil {
+		//	return err
+		//}
+		//// update account information
+		//fmt.Println(txName, "update account 2")
+		//result.ToAccount, err = store.UpdateAccount(context.Background(), UpdateAccountParams{
+		//	ID:      account2.ID,
+		//	Balance: account2.Balance + arg.Amount,
+		//})
+		//if err != nil {
+		//	return err
+		//}
 		return nil
 	})
 	return result, err
