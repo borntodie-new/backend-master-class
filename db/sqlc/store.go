@@ -82,7 +82,7 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 
 		// update account's balance
 		// get account information
-		account1, err := store.GetAccount(context.Background(), arg.FromAccountId)
+		account1, err := store.GetAccountForUpdate(context.Background(), arg.FromAccountId)
 		if err != nil {
 			return err
 		}
@@ -95,7 +95,7 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 			return err
 		}
 		// get account information
-		account2, err := store.GetAccount(context.Background(), arg.ToAccountId)
+		account2, err := store.GetAccountForUpdate(context.Background(), arg.ToAccountId)
 		if err != nil {
 			return err
 		}
