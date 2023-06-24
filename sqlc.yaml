@@ -21,6 +21,8 @@ sql:
         emit_interface: false
         # 数据库中的表名作为结构体的表名
         emit_exact_table_names: false
+        # 当查询多条数据时，结果集时空时返回一个空切片
+        emit_empty_slices: true
 
 # accounts table -> Accounts structure
 # var account Accounts
