@@ -21,4 +21,4 @@
 go.work
 
 .idea
-./db/sqlc
+/db/sqlc
