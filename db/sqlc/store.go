@@ -50,6 +50,8 @@ type TransferTxResult struct {
 	ToAccountId   int64    `json:"to_account_id"`
 	FromEntry     Entry    `json:"from_entry"`
 	ToEntry       Entry    `json:"to_entry"`
+	FromAccount   Account  `json:"from_account"`
+	ToAccount     Account  `json:"to_account"`
 }
 
 // TransferTx performs money transfer from one account to the other
@@ -78,8 +80,30 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 			Amount:    arg.Amount,
 		})
 
-		// TODO: update account's balance
-
+		// update account's balance
+		// get account information
+		account1, err := store.GetAccount(context.Background(), arg.FromAccountId)
+		if err != nil {
+			return err
+		}
+		// update account information
+		result.FromAccount, err = store.UpdateAccount(context.Background(), UpdateAccountParams{
+			ID:      account1.ID,
+			Balance: account1.Balance - arg.Amount,
+		})
+		if err != nil {
+			return err
+		}
+		// get account information
+		account2, err := store.GetAccount(context.Background(), arg.ToAccountId)
+		if err != nil {
+			return err
+		}
+		// update account information
+		result.ToAccount, err = store.UpdateAccount(context.Background(), UpdateAccountParams{
+			ID:      account2.ID,
+			Balance: account2.Balance + arg.Amount,
+		})
 		if err != nil {
 			return err
 		}
