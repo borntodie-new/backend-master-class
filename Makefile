@@ -35,4 +35,6 @@ migrationdown:
 sqlc:
 	sqlc generate
 
+test:
+	go test -v -cover ./...
 #.PYONY: postgresup createdb dropdb
