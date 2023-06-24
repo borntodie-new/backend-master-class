@@ -32,4 +32,7 @@ migrationdown:
 	migrate -path db/migration -database "postgres://root:password@localhost:5432/simple_bank?sslmode=disable" -verbose down
 	@echo "migrate database success..."
 
+sqlc:
+	sqlc generate
+
 #.PYONY: postgresup createdb dropdb
