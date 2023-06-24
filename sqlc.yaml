@@ -1,0 +1,26 @@
+version: "2"
+sql:
+  # 使用的数据库产品
+  - engine: "postgresql"
+    # 需要生成的代码路径
+    queries: "./db/query"
+    # 需要生成的表模型路径
+    schema: "./db/migration"
+    # 生成GO代码的配置
+    gen:
+      go:
+        # 包名
+        package: "sqlc"
+        # 输出位置
+        out: "./db/sqlc"
+        # 结构体的标签
+        emit_json_tags: true
+        # 预查询
+        emit_prepared_queries: false
+        # 不要生成接口
+        emit_interface: false
+        # 数据库中的表名作为结构体的表名
+        emit_exact_table_names: false
+
+# accounts table -> Accounts structure
+# var account Accounts
