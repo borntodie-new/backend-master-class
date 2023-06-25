@@ -24,12 +24,12 @@ func (s *Server) createTransfer(ctx *gin.Context) {
 
 	// 下面两个操作其实可以做并发处理
 	// 主要逻辑是查询这两个ID的用户是否存在
-	_, valid := s.validAccount(ctx, req.FromAccountID, req.Currency)
+	_, valid := s.validAccount(ctx, req.FromAccountID, req.Currency, req.Amount)
 	if !valid {
 		return
 	}
 
-	_, valid = s.validAccount(ctx, req.ToAccountID, req.Currency)
+	_, valid = s.validAccount(ctx, req.ToAccountID, req.Currency, req.Amount)
 	if !valid {
 		return
 	}
@@ -49,7 +49,7 @@ func (s *Server) createTransfer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
-func (s *Server) validAccount(ctx *gin.Context, accountID int64, currency string) (db.Account, bool) {
+func (s *Server) validAccount(ctx *gin.Context, accountID int64, currency string, amount int64) (db.Account, bool) {
 	account, err := s.store.GetAccount(ctx, accountID)
 	if err != nil {
 		if errors.Is(err, db.ErrRecordNotFound) {
