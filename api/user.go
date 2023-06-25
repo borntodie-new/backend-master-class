@@ -4,7 +4,6 @@ import (
 	db "github.com/borntodie-new/backend-master-class/db/sqlc"
 	"github.com/borntodie-new/backend-master-class/util"
 	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
 	"net/http"
 	"time"
 )
@@ -41,24 +40,23 @@ func (s *Server) createUser(ctx *gin.Context) {
 		FullName:       req.FullName,
 		Email:          req.Email,
 	}
+	// log.Printf("前端传的：%v\n", arg)
 	user, err := s.store.CreateUser(ctx, arg)
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok {
-			switch pqErr.Code.Name() {
-			case "unique_violation":
-				ctx.JSON(http.StatusForbidden, errorResponse(err))
-				return
-			}
+		if db.ErrorCode(err) == db.UniqueViolation {
+			ctx.JSON(http.StatusForbidden, errorResponse(err))
+			return
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	rsp := createUserResponse{
-		Username:          user.Username,
-		FullName:          user.FullName,
-		Email:             user.Email,
-		CreatedAt:         user.CreatedAt,
-		PasswordChangedAt: user.PasswordChangedAt,
-	}
-	ctx.JSON(http.StatusOK, rsp)
+	//rsp := createUserResponse{
+	//	Username:          user.Username,
+	//	FullName:          user.FullName,
+	//	Email:             user.Email,
+	//	CreatedAt:         user.CreatedAt,
+	//	PasswordChangedAt: user.PasswordChangedAt,
+	//}
+	//ctx.JSON(http.StatusOK, rsp)
+	ctx.JSON(http.StatusOK, user)
 }
