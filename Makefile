@@ -38,6 +38,9 @@ sqlc:
 test:
 	go test -v -cover ./...
 
+mock:
+	mockgen -package mockdb --build_flags=--mod=mod -destination db/mock/store.go github.com/borntodie-new/backend-master-class/db/sqlc Store
+
 server:
 	go run main.go
 
