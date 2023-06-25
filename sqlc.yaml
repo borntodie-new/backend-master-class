@@ -18,7 +18,7 @@ sql:
         # 预查询
         emit_prepared_queries: false
         # 不要生成接口
-        emit_interface: false
+        emit_interface: true
         # 数据库中的表名作为结构体的表名
         emit_exact_table_names: false
         # 当查询多条数据时，结果集时空时返回一个空切片
