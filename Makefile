@@ -32,6 +32,18 @@ migrationdown:
 	migrate -path db/migration -database "postgres://root:password@localhost:5432/simple_bank?sslmode=disable" -verbose down
 	@echo "migrate database success..."
 
+
+# migrate database
+migrationup1:
+	@echo "migrate database for create..."
+	migrate -path db/migration -database "postgres://root:password@localhost:5432/simple_bank?sslmode=disable" -verbose up 1
+	@echo "migrate database success..."
+
+migrationdown1:
+	@echo "migrate database for delete..."
+	migrate -path db/migration -database "postgres://root:password@localhost:5432/simple_bank?sslmode=disable" -verbose down 1
+	@echo "migrate database success..."
+
 sqlc:
 	sqlc generate
 
