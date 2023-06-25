@@ -9,7 +9,7 @@ import (
 
 type createAccountRequest struct {
 	Owner    string `json:"owner" binding:"required"`
-	Currency string `json:"currency" binding:"required,oneof=USD EUR"`
+	Currency string `json:"currency" binding:"required,oneof=USD EUR CAD"`
 }
 
 func (s *Server) createAccount(ctx *gin.Context) {
@@ -44,7 +44,7 @@ func (s *Server) getAccount(ctx *gin.Context) {
 	account, err := s.store.GetAccount(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusInternalServerError, errorResponse(sql.ErrNoRows))
+			ctx.JSON(http.StatusNotFound, errorResponse(sql.ErrNoRows))
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
