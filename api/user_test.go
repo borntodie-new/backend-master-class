@@ -195,7 +195,7 @@ func TestCreateUserAPI(t *testing.T) {
 
 			store := mockdb.NewMockStore(ctrl)
 
-			server := NewServer(store)
+			server := newTestServer(t, store)
 
 			// mock数据
 			tc.buildStubs(store)

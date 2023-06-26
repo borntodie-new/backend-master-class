@@ -1,7 +1,10 @@
 package api
 
 import (
+	"fmt"
 	db "github.com/borntodie-new/backend-master-class/db/sqlc"
+	"github.com/borntodie-new/backend-master-class/token"
+	"github.com/borntodie-new/backend-master-class/util"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -9,12 +12,22 @@ import (
 
 // Server HTTP request for our banking service.
 type Server struct {
-	store  db.Store
-	router *gin.Engine
+	config     util.Config
+	store      db.Store
+	tokenMaker token.Maker
+	router     *gin.Engine
 }
 
-func NewServer(store db.Store) *Server {
-	server := &Server{store: store}
+func NewServer(config util.Config, store db.Store) (*Server, error) {
+	tokenMaker, err := token.NewJWTMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create maker: %w", err)
+	}
+	server := &Server{
+		config:     config,
+		store:      store,
+		tokenMaker: tokenMaker,
+	}
 	router := gin.Default()
 
 	// 注册自定义的验证器
@@ -29,7 +42,7 @@ func NewServer(store db.Store) *Server {
 	router.POST("/users", server.createUser)
 
 	server.router = router
-	return server
+	return server, nil
 }
 
 // Start runs the HTTP server on a specific address

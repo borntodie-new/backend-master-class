@@ -30,7 +30,7 @@ func TestListAccountAPI(t *testing.T) {
 
 	store := mockdb.NewMockStore(ctrl)
 
-	server := NewServer(store)
+	server := newTestServer(t, store)
 
 	testCases := []struct {
 		name          string
@@ -188,7 +188,7 @@ func TestCreateAccountAPI(t *testing.T) {
 		},
 	}
 
-	server := NewServer(store)
+	server := newTestServer(t, store)
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -216,7 +216,7 @@ func TestGetAccountAPI(t *testing.T) {
 	defer ctrl.Finish()
 
 	store := mockdb.NewMockStore(ctrl)
-	server := NewServer(store)
+	server := newTestServer(t, store)
 
 	testCases := []struct {
 		name          string
