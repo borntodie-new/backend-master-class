@@ -19,7 +19,7 @@ type Server struct {
 }
 
 func NewServer(config util.Config, store db.Store) (*Server, error) {
-	tokenMaker, err := token.NewJWTMaker(config.TokenSymmetricKey)
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create maker: %w", err)
 	}
@@ -28,26 +28,33 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		store:      store,
 		tokenMaker: tokenMaker,
 	}
-	router := gin.Default()
 
 	// 注册自定义的验证器
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		_ = v.RegisterValidation("currency", validCurrency)
 	}
 
-	router.POST("/accounts", server.createAccount)
-	router.GET("/accounts/:id", server.getAccount)
-	router.GET("/accounts", server.listAccount)
-	router.POST("/transfers", server.createTransfer)
-	router.POST("/users", server.createUser)
+	server.setupRouter()
 
-	server.router = router
 	return server, nil
 }
 
 // Start runs the HTTP server on a specific address
 func (s *Server) Start(address string) error {
 	return s.router.Run(address)
+}
+
+func (s *Server) setupRouter() {
+	router := gin.Default()
+
+	router.POST("/accounts", s.createAccount)
+	router.GET("/accounts/:id", s.getAccount)
+	router.GET("/accounts", s.listAccount)
+	router.POST("/transfers", s.createTransfer)
+	router.POST("/users", s.createUser)
+	router.POST("/users/login", s.loginUser)
+
+	s.router = router
 }
 
 func errorResponse(err error) gin.H {
