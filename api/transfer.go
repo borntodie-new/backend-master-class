@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	db "github.com/borntodie-new/backend-master-class/db/sqlc"
+	"github.com/borntodie-new/backend-master-class/token"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -24,8 +25,16 @@ func (s *Server) createTransfer(ctx *gin.Context) {
 
 	// 下面两个操作其实可以做并发处理
 	// 主要逻辑是查询这两个ID的用户是否存在
-	_, valid := s.validAccount(ctx, req.FromAccountID, req.Currency, req.Amount)
+	fromAccount, valid := s.validAccount(ctx, req.FromAccountID, req.Currency, req.Amount)
 	if !valid {
+		return
+	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	if fromAccount.Owner != authPayload.Username {
+		err := errors.New("from accounts doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
