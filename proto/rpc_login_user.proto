@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+import "user.proto";
+
+import "timestamp.proto";
+// 生成的代码包名
+package pb;
+
+option go_package = "github.com/borntodie-new/backend-master-class/pb";
+
+message LoginUserRequest{
+  string username = 1;
+  string password = 2;
+}
+
+message LoginUserResponse {
+  User user = 1;
+  string session_id = 2;
+  string access_token = 3;
+  string refresh_token = 4;
+  Timestamp access_token_expires_at = 5;
+  Timestamp refresh_token_expires_at = 6;
+}
