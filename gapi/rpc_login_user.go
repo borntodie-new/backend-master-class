@@ -6,12 +6,17 @@ import (
 	db "github.com/borntodie-new/backend-master-class/db/sqlc"
 	"github.com/borntodie-new/backend-master-class/pb"
 	"github.com/borntodie-new/backend-master-class/util"
+	"github.com/borntodie-new/backend-master-class/val"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
+	if violations := validateLoginUserRequest(req); violations != nil {
+		return nil, invalidArgumentError(violations)
+	}
 	// query this user
 	user, err := s.store.GetUser(ctx, req.GetUsername())
 	if err != nil {
@@ -66,4 +71,14 @@ func (s *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.L
 		User:                  convertUser(user),
 	}
 	return rsp, nil
+}
+
+func validateLoginUserRequest(req *pb.LoginUserRequest) (violations []*errdetails.BadRequest_FieldViolation) {
+	if err := val.ValidateUsername(req.GetUsername()); err != nil {
+		violations = append(violations, fieldViolation("username", err))
+	}
+	if err := val.ValidatePassword(req.GetUsername()); err != nil {
+		violations = append(violations, fieldViolation("password", err))
+	}
+	return
 }
