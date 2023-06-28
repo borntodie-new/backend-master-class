@@ -8,11 +8,12 @@ import (
 	"github.com/borntodie-new/backend-master-class/util"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
 	// query this user
-	user, err := s.store.GetUser(ctx, req.Username)
+	user, err := s.store.GetUser(ctx, req.GetUsername())
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Errorf(codes.NotFound, "user not found: %s", err)
@@ -21,7 +22,7 @@ func (s *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.L
 	}
 
 	// check the password
-	err = util.CheckPassword(req.Password, user.HashedPassword)
+	err = util.CheckPassword(req.GetPassword(), user.HashedPassword)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "incorrect password: %s", err)
 	}
@@ -59,9 +60,9 @@ func (s *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.L
 	rsp := &pb.LoginUserResponse{
 		SessionId:             session.ID.String(),
 		AccessToken:           accessToken,
-		AccessTokenExpiresAt:  convertTime(accessPayload.ExpireAt),
+		AccessTokenExpiresAt:  timestamppb.New(accessPayload.ExpireAt),
 		RefreshToken:          refreshToken,
-		RefreshTokenExpiresAt: convertTime(refreshPayload.ExpireAt),
+		RefreshTokenExpiresAt: timestamppb.New(refreshPayload.ExpireAt),
 		User:                  convertUser(user),
 	}
 	return rsp, nil

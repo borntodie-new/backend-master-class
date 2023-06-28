@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "user.proto";
 
-import "timestamp.proto";
+import "google/protobuf/timestamp.proto";
 // 生成的代码包名
 package pb;
 
@@ -18,6 +18,6 @@ message LoginUserResponse {
   string session_id = 2;
   string access_token = 3;
   string refresh_token = 4;
-  Timestamp access_token_expires_at = 5;
-  Timestamp refresh_token_expires_at = 6;
+  google.protobuf.Timestamp access_token_expires_at = 5;
+  google.protobuf.Timestamp refresh_token_expires_at = 6;
 }

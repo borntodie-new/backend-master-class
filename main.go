@@ -1,16 +1,19 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"github.com/borntodie-new/backend-master-class/api"
 	db "github.com/borntodie-new/backend-master-class/db/sqlc"
 	"github.com/borntodie-new/backend-master-class/gapi"
 	"github.com/borntodie-new/backend-master-class/pb"
 	"github.com/borntodie-new/backend-master-class/util"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
+	"net/http"
 
 	"google.golang.org/grpc"
 )
@@ -26,6 +29,7 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
+	go runGatewayServer(config, store)
 
 	runGrpcServer(config, store)
 }
@@ -45,6 +49,35 @@ func runGrpcServer(config util.Config, store db.Store) {
 	}
 	log.Println("start GRPC server at ", config.GRPCServerAddress)
 	err = grpcServer.Serve(listen)
+	if err != nil {
+		log.Fatal("cannot start server:", err)
+	}
+}
+
+func runGatewayServer(config util.Config, store db.Store) {
+	server, err := gapi.NewServer(config, store)
+	if err != nil {
+		log.Fatal("cannot start server:", err)
+	}
+
+	gRPCMux := runtime.NewServeMux()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	err = pb.RegisterSimpleBankHandlerServer(ctx, gRPCMux, server)
+	if err != nil {
+		log.Fatal("cannot register handler server")
+	}
+
+	mux := http.NewServeMux()
+	mux.Handle("/", gRPCMux)
+
+	listener, err := net.Listen("tcp", config.HTTPServerAddress)
+	if err != nil {
+		log.Fatal("cannot create listener")
+	}
+
+	log.Println("start gateway server at ", listener.Addr().String())
+	err = http.Serve(listener, mux)
 	if err != nil {
 		log.Fatal("cannot start server:", err)
 	}

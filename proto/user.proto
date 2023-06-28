@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 // 引入外界定义的类型
-import "timestamp.proto";
+import "google/protobuf/timestamp.proto";
 
 
 // 生成的代码包名
@@ -13,6 +13,6 @@ message User{
   string username = 1;
   string full_name = 2;
   string email = 3;
-  Timestamp password_changed_at = 4;
-  Timestamp created_at = 5;
+  google.protobuf.Timestamp password_changed_at = 4;
+  google.protobuf.Timestamp created_at = 5;
 }
