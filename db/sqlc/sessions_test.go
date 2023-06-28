@@ -17,7 +17,7 @@ func createRandomSession(t *testing.T) (Session, uuid.UUID) {
 	jwtMaker, err := token.NewJWTMaker(util.RandomString(32))
 	require.NoError(t, err)
 	username := util.RandomOwner()
-	accessToken, err := jwtMaker.CreateToken(username, time.Minute)
+	accessToken, accessPayload, err := jwtMaker.CreateToken(username, time.Minute)
 	require.NoError(t, err)
 	arg := CreateSessionParams{
 		ID:           uuid.New(),
@@ -26,7 +26,7 @@ func createRandomSession(t *testing.T) (Session, uuid.UUID) {
 		UserAgent:    util.RandomString(12),
 		ClientIp:     util.RandomString(12),
 		IsBlock:      false,
-		ExpiresAt:    time.Now().Add(time.Minute),
+		ExpiresAt:    accessPayload.ExpireAt,
 	}
 	session, err := testQueries.CreateSession(context.Background(), arg)
 	require.NoError(t, err)
