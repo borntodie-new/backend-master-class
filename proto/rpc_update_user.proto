@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "user.proto";
+
+// 生成的代码包名
+package pb;
+
+option go_package = "github.com/borntodie-new/backend-master-class/pb";
+
+message UpdateUserRequest{
+  string full_name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message UpdateUserResponse{
+  User user = 1;
+}
