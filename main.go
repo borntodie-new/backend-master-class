@@ -89,7 +89,9 @@ func runGatewayServer(config util.Config, store db.Store) {
 	}
 
 	log.Info().Msgf("start gateway server at ", listener.Addr().String())
-	err = http.Serve(listener, mux)
+	// 实现中间件机制
+	handler := api.HttpLogger(mux)
+	err = http.Serve(listener, handler)
 	if err != nil {
 		log.Fatal().Msgf("cannot start server:", err)
 	}
