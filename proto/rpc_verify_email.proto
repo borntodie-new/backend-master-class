@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+// 引入外界定义的类型
+
+
+// 生成的代码包名
+package pb;
+
+option go_package = "github.com/borntodie-new/backend-master-class/pb";
+
+
+message VerifyEmailRequest {
+  int64 email_id = 1;
+  string secret_code = 2;
+}
+
+message VerifyEmailResponse {
+  bool is_verified = 1;
+}
