@@ -15,6 +15,9 @@ type Config struct {
 	HTTPServerAddress    string        `mapstructure:"HTTP_ADDRESS"`
 	GRPCServerAddress    string        `mapstructure:"GRPC_ADDRESS"`
 	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC"`
+	EmailSenderName      string        `mapstructure:"EMAIL_SENDER_NAME_QQ"`
+	EmailSenderAddress   string        `mapstructure:"EMAIL_SENDER_ADDRESS_QQ"`
+	EmailSenderPassword  string        `mapstructure:"EMAIL_SENDER_PASSWORD_QQ"`
 	AccessTokenDuration  time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
 }
