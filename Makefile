@@ -25,6 +25,12 @@ migration_up1:
 
 migration_down1:
 	migrate -path db/migration -database "postgres://root:password@localhost:5432/simple_bank?sslmode=disable" -verbose down 1
+# migrate database
+migration_up2:
+	migrate -path db/migration -database "postgres://root:password@localhost:5432/simple_bank?sslmode=disable" -verbose up 2
+
+migration_down2:
+	migrate -path db/migration -database "postgres://root:password@localhost:5432/simple_bank?sslmode=disable" -verbose down 2
 
 sqlc:
 	sqlc generate
@@ -58,4 +64,6 @@ redis_down:
 	docker stop redis
 	docker rm redis
 
+new_migration:
+	migrate create -ext sql -dir db/migration -seq $(name)
 #.PYONY: postgresup createdb dropdb
