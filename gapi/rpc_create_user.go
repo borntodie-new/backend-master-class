@@ -23,13 +23,30 @@ func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to hash password: %s", err)
 	}
-	arg := db.CreateUserParams{
-		Username:       req.GetUsername(),
-		HashedPassword: hashedPassword,
-		FullName:       req.GetFullName(),
-		Email:          req.GetEmail(),
+	arg := db.CreateUserTxParams{
+		CreateUserParams: db.CreateUserParams{
+			Username:       req.GetUsername(),
+			HashedPassword: hashedPassword,
+			FullName:       req.GetFullName(),
+			Email:          req.GetEmail(),
+		},
+		AfterCreate: func(user db.User) error {
+			// TODO: use db transaction
+			// When user information already create success
+			// send email to verify this account
+			opts := []asynq.Option{
+				// 指定错误重试次数
+				asynq.MaxRetry(10),
+				// 指定队列的名字
+				asynq.Queue(worker.QueueDefaultName),
+				// 指定在接收到任务后多长时间执行任务
+				asynq.ProcessIn(time.Second * 10),
+			}
+			taskPayload := worker.PayloadSendVerifyEmail{Username: user.Username}
+			return s.taskDistributor.DistributeTaskSendVerifyEmail(ctx, &taskPayload, opts...)
+		},
 	}
-	user, err := s.store.CreateUser(ctx, arg)
+	txResult, err := s.store.CreateUserTx(ctx, arg)
 	if err != nil {
 		if db.ErrorCode(err) == db.UniqueViolation {
 			return nil, status.Errorf(codes.AlreadyExists, "username already exists: %s", err)
@@ -37,25 +54,8 @@ func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb
 		return nil, status.Errorf(codes.Internal, "failed to create user: %s", err)
 	}
 
-	// TODO: use db transaction
-	// When user information already create success
-	// send email to verify this account
-	opts := []asynq.Option{
-		// 指定错误重试次数
-		asynq.MaxRetry(10),
-		// 指定队列的名字
-		asynq.Queue(worker.QueueDefaultName),
-		// 指定在接收到任务后多长时间执行任务
-		asynq.ProcessIn(time.Second * 10),
-	}
-	taskPayload := worker.PayloadSendVerifyEmail{Username: user.Username}
-	err = s.taskDistributor.DistributeTaskSendVerifyEmail(ctx, &taskPayload, opts...)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to distribute task to send verify email: %s", err)
-	}
-
 	rsp := &pb.CreateUserResponse{
-		User: convertUser(user),
+		User: convertUser(txResult.User),
 	}
 	return rsp, nil
 }
