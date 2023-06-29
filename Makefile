@@ -1,48 +1,30 @@
 # build a new postgres container
-postgresup:
-	@echo "build a new postgres container..."
+postgres_up:
 	docker run --name postgres -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -d postgres:14.0
-	@echo "buold a new postgres container success!"
 # delete exist container of postgres
-postgresdown:
-	@echo "stop postgres container..."
+postgres_down:
 	docker stop postgres
-	@echo "delete postgres container..."
 	docker rm postgres
-	@echo "delete postgres container success..."
 # create database
-createdb:
-	@echo "create database..."
+create_db:
 	docker exec -it postgres createdb --username=root --owner=root simple_bank
-	@echo "create database done..."
 # drop database
-dropdb:
-	@echo "drop database..."
+drop_db:
 	docker exec -it postgres dropdb simple_bank
-	@echo "drop database done..."
 
 # migrate database
-migrationup:
-	@echo "migrate database for create..."
+migration_up:
 	migrate -path db/migration -database "postgres://root:password@localhost:5432/simple_bank?sslmode=disable" -verbose up
-	@echo "migrate database success..."
 
-migrationdown:
-	@echo "migrate database for delete..."
+migration_down:
 	migrate -path db/migration -database "postgres://root:password@localhost:5432/simple_bank?sslmode=disable" -verbose down
-	@echo "migrate database success..."
-
 
 # migrate database
-migrationup1:
-	@echo "migrate database for create..."
+migration_up1:
 	migrate -path db/migration -database "postgres://root:password@localhost:5432/simple_bank?sslmode=disable" -verbose up 1
-	@echo "migrate database success..."
 
-migrationdown1:
-	@echo "migrate database for delete..."
+migration_down1:
 	migrate -path db/migration -database "postgres://root:password@localhost:5432/simple_bank?sslmode=disable" -verbose down 1
-	@echo "migrate database success..."
 
 sqlc:
 	sqlc generate
@@ -56,7 +38,7 @@ mock:
 server:
 	go run main.go
 
-proto_gen:
+protoc_gen:
 	rm -f pb/*.proto
 	rm -f doc/swagger/*
 	protoc --proto_path=./proto --go_out=./pb --go_opt=paths=source_relative \
@@ -68,5 +50,12 @@ proto_gen:
 
 evans:
 	evans --host localhost --port 9090 -r repl
+
+redis_up:
+	docker run --name redis -p 6379:6379 -d redis:7-alpine
+
+redis_down:
+	docker stop redis
+	docker rm redis
 
 #.PYONY: postgresup createdb dropdb
