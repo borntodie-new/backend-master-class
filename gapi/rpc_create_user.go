@@ -7,9 +7,11 @@ import (
 	"github.com/borntodie-new/backend-master-class/util"
 	"github.com/borntodie-new/backend-master-class/val"
 	"github.com/borntodie-new/backend-master-class/worker"
+	"github.com/hibiken/asynq"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"time"
 )
 
 func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
@@ -38,8 +40,16 @@ func (s *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb
 	// TODO: use db transaction
 	// When user information already create success
 	// send email to verify this account
+	opts := []asynq.Option{
+		// 指定错误重试次数
+		asynq.MaxRetry(10),
+		// 指定队列的名字
+		asynq.Queue(worker.QueueDefaultName),
+		// 指定在接收到任务后多长时间执行任务
+		asynq.ProcessIn(time.Second * 10),
+	}
 	taskPayload := worker.PayloadSendVerifyEmail{Username: user.Username}
-	err = s.taskDistributor.DistributeTaskSendVerifyEmail(ctx, &taskPayload)
+	err = s.taskDistributor.DistributeTaskSendVerifyEmail(ctx, &taskPayload, opts...)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to distribute task to send verify email: %s", err)
 	}

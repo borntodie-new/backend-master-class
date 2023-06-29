@@ -6,6 +6,11 @@ import (
 	"github.com/hibiken/asynq"
 )
 
+const (
+	QueueCriticalName = "critical"
+	QueueDefaultName  = "default"
+)
+
 // Processor 作为一个消费者对象
 
 var _ TaskProcessor = &RedisTaskProcessor{}
@@ -21,7 +26,13 @@ type RedisTaskProcessor struct {
 }
 
 func NewRedisTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store) TaskProcessor {
-	server := asynq.NewServer(redisOpt, asynq.Config{})
+	queue := map[string]int{
+		QueueDefaultName:  1,
+		QueueCriticalName: 2,
+	}
+	server := asynq.NewServer(redisOpt, asynq.Config{
+		Queues: queue,
+	})
 	return &RedisTaskProcessor{
 		server: server,
 		store:  store,
