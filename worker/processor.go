@@ -6,6 +6,8 @@ import (
 	"github.com/hibiken/asynq"
 )
 
+// Processor 作为一个消费者对象
+
 var _ TaskProcessor = &RedisTaskProcessor{}
 
 type TaskProcessor interface {

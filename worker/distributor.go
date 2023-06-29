@@ -5,6 +5,8 @@ import (
 	"github.com/hibiken/asynq"
 )
 
+// Distributor 作为一个生产者对象
+
 var _ TaskDistributor = &RedisTaskDistributor{}
 
 type TaskDistributor interface {

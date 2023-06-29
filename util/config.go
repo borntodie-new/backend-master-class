@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Environment          string        `mapstructure:"ENVIRONMENT"`
 	DBDriver             string        `mapstructure:"DB_DRIVER"`
+	RedisAddress         string        `mapstructure:"REDIS_ADDRESS"`
 	DBSource             string        `mapstructure:"DB_SOURCE"`
 	HTTPServerAddress    string        `mapstructure:"HTTP_ADDRESS"`
 	GRPCServerAddress    string        `mapstructure:"GRPC_ADDRESS"`
