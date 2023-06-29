@@ -2,8 +2,6 @@ package sqlc
 
 import (
 	"context"
-	"fmt"
-	"time"
 )
 
 type CreateUserTxParams struct {
@@ -28,6 +26,5 @@ func (store *SQLStore) CreateUserTx(ctx context.Context, arg CreateUserTxParams)
 		}
 		return arg.AfterCreate(result.User)
 	})
-	fmt.Println("CreateUserTx执行时间", time.Now().Nanosecond())
 	return result, err
 }
