@@ -40,6 +40,7 @@ test:
 
 mock:
 	mockgen -package mockdb --build_flags=--mod=mod -destination db/mock/store.go github.com/borntodie-new/backend-master-class/db/sqlc Store
+	mockgen -package mockwk --build_flags=--mod=mod -destination worker/mock/distributor.go github.com/borntodie-new/backend-master-class/worker TaskDistributor
 
 server:
 	go run main.go
